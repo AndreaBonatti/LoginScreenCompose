@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -62,7 +62,7 @@ fun OutlinedTextFieldWithValidation(
     if (errorMessage != null) {
         Text(
             text = errorMessage,
-            color = MaterialTheme.colors.error,
+            color = MaterialTheme.colorScheme.error,
 //            modifier = modifier.align(Alignment.End) => Impossible outside a Column()
         ) // 24.dp
     } else { // We add a spacer with the same height of the text, so there is no movement of the ui elements

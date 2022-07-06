@@ -4,12 +4,12 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -29,7 +29,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.flow.collect
 
 @ExperimentalComposeUiApi
 @Composable
@@ -64,13 +63,13 @@ fun LoginScreen(
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.onBackground)) {
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
                     append("Sigma ")
                 }
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.primary)) {
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                     append("N")
                 }
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.onBackground)) {
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
                     append("OTA")
                 }
             },
