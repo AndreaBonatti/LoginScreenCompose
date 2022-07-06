@@ -1,10 +1,6 @@
 package com.example.loginscreencompose.feature_login.presentation
 
-
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,7 +12,6 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,48 +26,28 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.loginscreencompose.ui.theme.LoginScreenComposeTheme
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.flow.collect
 
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            LoginScreenComposeTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    LoginScreen()
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
+@ExperimentalComposeUiApi
 @Composable
-fun LoginScreen() {
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
-    val viewModel = viewModel<LoginViewModel>()
+fun LoginScreen(
+    viewModel: LoginViewModel = hiltViewModel(),
+) {
     val state = viewModel.state
     val context = LocalContext.current
-    LaunchedEffect(key1 = context) {
+    var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(key1 = context) { // Fake login response
         viewModel.validationsEvents.collect { event ->
             when (event) {
                 is LoginViewModel.ValidationEvent.Success -> {
                     Toast.makeText(
                         context,
-                        "Login is succesful",
+                        "Login is successful",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -85,21 +60,7 @@ fun LoginScreen() {
             .padding(32.dp),
         verticalArrangement = Arrangement.Center
     ) {
-//        var email by rememberSaveable { mutableStateOf(TextFieldValue("")) } // => Crash
-//        var email by remember { mutableStateOf(TextFieldValue("")) } // => No save on theme change
-//        var email by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-//            mutableStateOf(TextFieldValue(""))
-//        }
-//        var password by remember { mutableStateOf(TextFieldValue("")) }
-//        var password by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-//            mutableStateOf(TextFieldValue(""))
-//        }
-//        var passwordVisible by rememberSaveable { mutableStateOf(false) }
-//        val keyboardController = LocalSoftwareKeyboardController.current
-//        val focusManager = LocalFocusManager.current
-//        var rememberMe by rememberSaveable { mutableStateOf(false) }
-
-
+        // App name instead of logo
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = buildAnnotatedString {
@@ -119,7 +80,8 @@ fun LoginScreen() {
             maxLines = 1,
         )
         Spacer(modifier = Modifier.height(64.dp))
-        OutlinedTextField(
+        // Email
+        OutlinedTextFieldWithValidation(
             value = state.email,
             onValueChange = {
                 viewModel.onEvent(LoginFormEvent.EmailChanged(it))
@@ -144,18 +106,11 @@ fun LoginScreen() {
                     imageVector = Icons.Default.Email,
                     contentDescription = "Email icon"
                 )
-            }
+            },
+            errorMessage = state.emailError
         )
-        if (state.emailError != null) {
-            Text(
-                text = state.emailError,
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.align(Alignment.End)
-            ) // 24.dp
-        } else {
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-        OutlinedTextField(
+        // Password
+        OutlinedTextFieldWithValidation(
             value = state.password,
             onValueChange = {
                 viewModel.onEvent(LoginFormEvent.PasswordChanged(it))
@@ -182,12 +137,12 @@ fun LoginScreen() {
             },
             trailingIcon = {
                 val icon =
-                    if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                    if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                 val desc =
-                    if (passwordVisible) "Hide password" else "Show password"
+                    if (isPasswordVisible) "Hide password" else "Show password"
                 IconButton(
                     onClick = {
-                        passwordVisible = !passwordVisible
+                        isPasswordVisible = !isPasswordVisible
                     }
                 ) {
                     Icon(
@@ -198,18 +153,11 @@ fun LoginScreen() {
             },
             singleLine = true,
             visualTransformation =
-            if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            errorMessage = state.passwordError
         )
-        if (state.passwordError != null) {
-            Text(
-                text = state.passwordError,
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.align(Alignment.End)
-            ) // 24.dp
-            Spacer(modifier = Modifier.height(8.dp))
-        } else {
-            Spacer(modifier = Modifier.height(32.dp))
-        }
+        Spacer(modifier = Modifier.height(8.dp))
+        // Login button
         Button(
             onClick = {
                 keyboardController?.hide()
@@ -222,13 +170,5 @@ fun LoginScreen() {
         ) {
             Text(text = "LOGIN")
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    LoginScreenComposeTheme {
-        LoginScreen()
     }
 }
